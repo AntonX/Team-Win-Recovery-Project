@@ -80,6 +80,12 @@ int res_create_surface(const char* name, gr_surface* pSurface);
 int res_create_localized_surface(const char* name, gr_surface* pSurface);
 void res_free_surface(gr_surface surface);
 
+int res_create_surface(const char* name, gr_surface* pSurface);
+static inline int res_create_display_surface(const char* name, gr_surface* pSurface) {
+    return res_create_surface(name, pSurface);
+}
+
+
 #ifdef __cplusplus
 }
 #endif

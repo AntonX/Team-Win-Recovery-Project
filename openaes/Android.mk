@@ -4,8 +4,8 @@ include $(CLEAR_VARS)
 ifneq ($(TW_EXCLUDE_ENCRYPTED_BACKUPS), true)
 	LOCAL_SRC_FILES:= src/oaes.c \
 	LOCAL_C_INCLUDES := \
-		bootable/recovery/openaes/src/isaac \
-		bootable/recovery/openaes/inc
+		$(LOCAL_PATH)/src/isaac \
+		$(LOCAL_PATH)/inc
 	LOCAL_CFLAGS:= -g -c -W
 	LOCAL_MODULE:=openaes
 	LOCAL_MODULE_TAGS:= eng
@@ -18,8 +18,8 @@ ifneq ($(TW_EXCLUDE_ENCRYPTED_BACKUPS), true)
 	LOCAL_MODULE := libopenaes
 	LOCAL_MODULE_TAGS := eng
 	LOCAL_C_INCLUDES := \
-		bootable/recovery/openaes/src/isaac \
-		bootable/recovery/openaes/inc
+		$(LOCAL_PATH)/src/isaac \
+		$(LOCAL_PATH)/inc
 	LOCAL_SRC_FILES = src/oaes_lib.c src/isaac/rand.c
 	LOCAL_SHARED_LIBRARIES = libc
 	include $(BUILD_SHARED_LIBRARY)

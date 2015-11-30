@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ifeq ($(call my-dir),$(call project-path-for,recovery))
+
 LOCAL_PATH := $(call my-dir)
 
 TARGET_RECOVERY_GUI := true
@@ -265,6 +267,66 @@ else
     LOCAL_CFLAGS += -DTW_EXCLUDE_ENCRYPTED_BACKUPS
 endif
 
+LOCAL_LDFLAGS += -Wl,-dynamic-linker,/sbin/linker
+
+LOCAL_ADDITIONAL_DEPENDENCIES := \
+    busybox_symlinks \
+    dosfsck \
+    dosfslabel \
+    dump_image \
+    erase_image \
+    flash_image \
+    fix_permissions.sh \
+    fsck_msdos_symlink \
+    mkdosfs \
+    mke2fs.conf \
+    mkexfatfs \
+    pigz \
+    teamwin \
+    toolbox_symlinks \
+    twrp \
+    unpigz_symlink \
+    updater \
+    libminuitwrp
+
+ifeq ($(BOARD_HAS_NO_REAL_SDCARD),)
+    LOCAL_ADDITIONAL_DEPENDENCIES += parted
+endif
+ifneq ($(TW_EXCLUDE_ENCRYPTED_BACKUPS), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += openaes ../openaes/LICENSE
+endif
+ifeq ($(TW_INCLUDE_DUMLOCK), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += \
+        htcdumlock htcdumlocksys flash_imagesys dump_imagesys libbmlutils.so \
+        libflashutils.so libmmcutils.so libmtdutils.so HTCDumlock.apk
+endif
+ifneq ($(TW_EXCLUDE_SUPERSU), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += \
+        su install-recovery.sh 99SuperSUDaemon Superuser.apk
+endif
+ifneq ($(TW_NO_EXFAT_FUSE), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += exfat-fuse
+endif
+ifeq ($(TW_INCLUDE_CRYPTO), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += cryptfs cryptsettings
+endif
+ifeq ($(TW_INCLUDE_JB_CRYPTO), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += getfooter
+endif
+ifeq ($(TW_INCLUDE_FB2PNG), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += fb2png
+endif
+ifeq ($(BOARD_USES_BML_OVER_MTD),true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += bml_over_mtd
+endif
+ifeq ($(TW_INCLUDE_INJECTTWRP), true)
+    LOCAL_ADDITIONAL_DEPENDENCIES += injecttwrp
+endif
+# Allow devices to specify device-specific recovery dependencies
+ifneq ($(TARGET_RECOVERY_DEVICE_MODULES),)
+    LOCAL_ADDITIONAL_DEPENDENCIES += $(TARGET_RECOVERY_DEVICE_MODULES)
+endif
+
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
@@ -283,13 +345,18 @@ $(RECOVERY_BUSYBOX_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	@rm -rf $@
 	$(hide) ln -sf $(BUSYBOX_BINARY) $@
 
-ALL_DEFAULT_INSTALLED_MODULES += $(RECOVERY_BUSYBOX_SYMLINKS)
+include $(CLEAR_VARS)
+LOCAL_MODULE := busybox_symlinks
+LOCAL_MODULE_TAGS := optional
+LOCAL_ADDITIONAL_DEPENDENCIES := $(RECOVERY_BUSYBOX_SYMLINKS)
+include $(BUILD_PHONY_PACKAGE)
+RECOVERY_BUSYBOX_SYMLINKS :=
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := verifier_test
 LOCAL_FORCE_STATIC_EXECUTABLE := true
 LOCAL_MODULE_TAGS := tests
-LOCAL_C_INCLUDES := bootable/recovery/libmincrypt/includes
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/libmincrypt/includes
 LOCAL_SRC_FILES := \
     verifier_test.cpp \
     verifier.cpp \
@@ -305,12 +372,11 @@ include $(BUILD_EXECUTABLE)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := libaosprecovery
-LOCAL_MODULE_TAGS := eng
-LOCAL_MODULES_TAGS = optional
+LOCAL_MODULE_TAGS := eng optional
 ifeq ($(TARGET_BOARD_PLATFORM),rk30xx)
     LOCAL_CFLAGS += -DRK3066
 endif
-LOCAL_C_INCLUDES := bootable/recovery/libmincrypt/includes
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/libmincrypt/includes
 LOCAL_SRC_FILES = adb_install.cpp bootloader.cpp verifier.cpp mtdutils/mtdutils.c
 LOCAL_SHARED_LIBRARIES += libc liblog libcutils libmtdutils
 LOCAL_STATIC_LIBRARIES += libmincrypttwrp
@@ -379,3 +445,5 @@ ifeq ($(TW_INCLUDE_FB2PNG), true)
 endif
 
 commands_recovery_local_path :=
+
+endif

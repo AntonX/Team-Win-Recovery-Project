@@ -3,10 +3,11 @@ LOCAL_PATH := $(call my-dir)
 ifneq ($(TARGET_SIMULATOR),true)
 
 include $(CLEAR_VARS)
+
 LOCAL_SRC_FILES := flashutils.c
 LOCAL_MODULE := libflashutils
 LOCAL_MODULE_TAGS := optional
-LOCAL_C_INCLUDES += bootable/recovery
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/..
 LOCAL_STATIC_LIBRARIES := libmmcutils libmtdutils libbmlutils libcrecovery
 
 BOARD_RECOVERY_DEFINES := BOARD_BML_BOOT BOARD_BML_RECOVERY
@@ -18,32 +19,6 @@ $(foreach board_define,$(BOARD_RECOVERY_DEFINES), \
   )
 
 include $(BUILD_STATIC_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := flash_image.c
-LOCAL_MODULE := flash_image
-LOCAL_MODULE_TAGS := optional
-LOCAL_STATIC_LIBRARIES := libflashutils libmtdutils libmmcutils libbmlutils libcrecovery
-LOCAL_SHARED_LIBRARIES := libcutils libc
-include $(BUILD_EXECUTABLE)
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := dump_image.c
-LOCAL_MODULE := dump_image
-LOCAL_MODULE_TAGS := optional
-LOCAL_STATIC_LIBRARIES := libflashutils libmtdutils libmmcutils libbmlutils libcrecovery
-LOCAL_SHARED_LIBRARIES := libcutils libc
-include $(BUILD_EXECUTABLE)
-
-include $(CLEAR_VARS)
-LOCAL_SRC_FILES := erase_image.c
-LOCAL_MODULE := erase_image
-LOCAL_MODULE_TAGS := optional
-LOCAL_STATIC_LIBRARIES := libflashutils libmtdutils libmmcutils libbmlutils libcrecovery
-LOCAL_SHARED_LIBRARIES := libcutils libc
-include $(BUILD_EXECUTABLE)
-
-ALL_DEFAULT_INSTALLED_MODULES += $(addprefix $(TARGET_OUT)/bin/, flash_image dump_image erase_image)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := flash_image.c
@@ -108,7 +83,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := flashutils.c
 LOCAL_MODULE := libflashutils
 LOCAL_MODULE_TAGS := eng
-LOCAL_C_INCLUDES += bootable/recovery
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/..
 LOCAL_SHARED_LIBRARIES := libc libmmcutils libbmlutils
 LOCAL_STATIC_LIBRARIES := libmtdutils
 

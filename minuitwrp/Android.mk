@@ -17,7 +17,7 @@ LOCAL_C_INCLUDES += \
     external/jpeg
 
 LOCAL_C_INCLUDES += \
-    bootable/recovery/libjpegtwrp
+    $(LOCAL_PATH)/../libjpegtwrp
 
 ifeq ($(RECOVERY_TOUCHSCREEN_SWAP_XY), true)
 LOCAL_CFLAGS += -DRECOVERY_TOUCHSCREEN_SWAP_XY
@@ -58,7 +58,7 @@ endif
 ifneq ($(BOARD_USE_CUSTOM_RECOVERY_FONT),)
   LOCAL_CFLAGS += -DBOARD_USE_CUSTOM_RECOVERY_FONT=$(BOARD_USE_CUSTOM_RECOVERY_FONT)
 endif
-LOCAL_SHARED_LIBRARIES += libz libc libcutils libjpeg
+LOCAL_SHARED_LIBRARIES += libz libc libcutils libjpeg libutils
 LOCAL_STATIC_LIBRARIES += libpng libpixelflinger_static
 LOCAL_MODULE_TAGS := eng
 LOCAL_MODULE := libminuitwrp
